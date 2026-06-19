@@ -1,5 +1,7 @@
 from google.adk import Agent
-from google.adk.tools.function_tool import FunctionTool
+# from google.adk.tools.function_tool import FunctionTool
+from google.adk.tools.tool_context import ToolContext
+
 
 FATURAS = [
     {  # dicionario
@@ -28,14 +30,29 @@ ASSINATURAS: dict[str, dict] = {
     }
 }
 
-def cancelar_assinatura(cliente_id: str) -> dict:
+def cancelar_assinatura(cliente_id: str, senha: str, tool_context: ToolContext) -> dict:
     """
     Cancela a assinatura do cliente com base no ID do cliente.
     :param
         cliente_id (str): O ID do cliente para a qual a assinatura deve ser cancelada
+        senha (str): Senha de confirmação
     :return:
         dict: Dicionário contendo o status da assinatura ou mensagem de erro
     """
+
+    if tool_context.tool_confirmation is None:
+        tool_context.request_confirmation(
+            hint="Você deseja cancelar a assinatura?",
+            payload={'cliente_id': cliente_id, "senha": ""}
+        )
+        return { "status": "aguardando_confirmacao" }
+
+    if tool_context.tool_confirmation.confirmed is False:
+        return { "status": "nao_cancelado", "message": "Assinatura não cancelada" }
+
+    if senha != "1234":
+        return { "status": "nao_cancelado", "message": "Senha inválida" }
+
     assinatura = ASSINATURAS.get(cliente_id)
     if assinatura is not None:
         ASSINATURAS[cliente_id]["status"] = "cancelada"
@@ -70,7 +87,8 @@ root_agent = Agent(
     """,
     tools=[
         listar_faturas,
-        FunctionTool(cancelar_assinatura, require_confirmation=True)
+        # FunctionTool(cancelar_assinatura, require_confirmation=True)
+        cancelar_assinatura
     ]
 )
 

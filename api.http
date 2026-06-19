@@ -1,0 +1,16 @@
+### contato inicial
+POST http://localhost:8000/mensagem
+Content-Type: application/json
+
+{
+    "mensagem": "Olá, gostaria de listar minhas assinaturas"
+}
+
+### lista assinatura
+POST http://localhost:8000/mensagem
+Content-Type: application/json
+
+{
+    "mensagem": "cliente_123",
+    "sessao_id": "9a6c227a-d468-433f-a262-220add8d95ca"
+}

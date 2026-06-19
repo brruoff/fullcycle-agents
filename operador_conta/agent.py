@@ -1,4 +1,5 @@
 from google.adk import Agent
+from google.adk.tools.function_tool import FunctionTool
 
 FATURAS = [
     {  # dicionario
@@ -18,6 +19,29 @@ FATURAS = [
         "status": "pendente",
     },
 ]
+
+ASSINATURAS: dict[str, dict] = {
+    "cliente_123": {
+        "plano": "Pro",
+        "status": "renovacao",
+        "data_renuncia": "2026-07-01",
+    }
+}
+
+def cancelar_assinatura(cliente_id: str) -> dict:
+    """
+    Cancela a assinatura do cliente com base no ID do cliente.
+    :param
+        cliente_id (str): O ID do cliente para a qual a assinatura deve ser cancelada
+    :return:
+        dict: Dicionário contendo o status da assinatura ou mensagem de erro
+    """
+    assinatura = ASSINATURAS.get(cliente_id)
+    if assinatura is not None:
+        ASSINATURAS[cliente_id]["status"] = "cancelada"
+        return { "status": "cancelado", "message": "Assinatura cancelada" }
+    else:
+        return { "status": "nao_cancelado", "message": "Cliente não encontrado" }
 
 def listar_faturas(client_id: str) -> dict:
     # db, http, integracao
@@ -44,7 +68,10 @@ root_agent = Agent(
         O usuário precisa fornecer o ID do cliente para que você possa buscar as informações corretas.
         Seja cordial e direto.
     """,
-    tools=[listar_faturas]
+    tools=[
+        listar_faturas,
+        FunctionTool(cancelar_assinatura, require_confirmation=True)
+    ]
 )
 
 

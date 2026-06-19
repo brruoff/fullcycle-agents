@@ -31,6 +31,9 @@ cp .env.example .env
 ## Rodando
 
 ```bash
+# API FastAPI
+uv run uvicorn api.api:app --reload
+
 # interface web do ADK
 uv run adk web operador_conta
 
@@ -38,12 +41,40 @@ uv run adk web operador_conta
 uv run adk run operador_conta
 ```
 
+### API
+
+Após subir com uvicorn, acesse `http://localhost:8000/docs` para ver a documentação interativa.
+
+**POST `/mensagem`**
+
+```json
+{
+  "mensagem": "Qual o status da minha assinatura?",
+  "sessao_id": null
+}
+```
+
+Resposta:
+
+```json
+{
+  "resposta": "...",
+  "sessao_id": "uuid-da-sessao"
+}
+```
+
+Passe `sessao_id` retornado nas requisições seguintes para manter contexto da conversa.
+
+### ADK Web
+
 Acesse `http://localhost:8000` e informe o `cliente_id` para iniciar o atendimento.
 
 ## Estrutura
 
 ```
+api/
+└── api.py         # FastAPI + Google ADK runner
 operador_conta/
-└── agent.py   # definição do agente e ferramentas
-main.py        # script de entrada (PyCharm template)
+└── agent.py       # definição do agente e ferramentas
+main.py            # script de entrada (PyCharm template)
 ```
